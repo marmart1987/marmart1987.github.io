@@ -3,19 +3,19 @@ export class collidableSprite extends PIXI.Sprite {
     rigidBody;
     game;
 
-    constructor(texture, game, name, ) {
+    constructor(texture, game, staticB) {
         super(texture)
         this.game = game
         //this.anchor.set(0.5)
         this.width = 30
         this.height = 30
-        this.rigidBody = Matter.Bodies.rectangle(100, 100, 60, 60, {
-            label: name ? name : "",
-            friction: 0.00001,
-            restitution: 0.5,
-            density: 0.001
+
+        this.rigidBody = Matter.Bodies.rectangle(100, 100, 100, 100, {
+            static: staticB
         }) //x,y,w,h
-        //this.resetPosition()
+        //this.rigidBody.isStatic = false;
+        this.rigidBody.density = 0.01;
+
 
     }
 

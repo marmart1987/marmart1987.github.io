@@ -7,9 +7,6 @@ globalThis.__PIXI_APP__ = app;
 window.onscroll = function () {
     window.scrollTo(0, 0);
 };
-Matter.use(
-    "matter-attractors"
-);
 
 function render(level, assets, game) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
@@ -47,7 +44,7 @@ function render(level, assets, game) {
 
     console.log(assets)
     const engine = new collisionEngine(PIXI)
-    let testSprite = new collidableSprite(assets.baseplate, engine, "hi")
+    let testSprite = new collidableSprite(assets.baseplate, engine, false)
     engine.addUpdatingSprite(testSprite)
 
 
@@ -88,11 +85,12 @@ class collisionEngine {
                 y: 1
             }
         })
+        this.engine.world.gravity.scale = 0.001
 
         Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
     addUpdatingSprite(collidableSprite) {
-        Matter.Composite.add(this.engine.world, collidableSprite)
+        Matter.Composite.add(this.engine.world, collidableSprite.rigidBody)
         this.elements.push(collidableSprite)
     }
 
