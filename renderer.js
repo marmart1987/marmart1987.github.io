@@ -8,14 +8,21 @@ window.onscroll = function () {
     window.scrollTo(0, 0);
 };
 
-function render(level, assets, game) {
+function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
     let appWidth = app.renderer.width * config.appWidthMultiplier
     for (let y = level.map.length - 1; y > -1; y--) {
         let row = level.map[y]
         row.forEach((element, x) => {
             if (element.imagePath) {
+                const size = appWidth / config.maxBlocksInWindow
+                let sprite = new collidableSprite(assets[element.name], engine, size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
+                console.log(sprite)
+                engine.addUpdatingSprite(sprite)
+                sprite.anchor.set(0.5);
+                game.addChild(sprite)
 
+                /*
                 let sprite = new PIXI.Sprite(assets[element.name])
                 sprite.anchor.set(0.5);
                 game.addChild(sprite)
@@ -23,6 +30,7 @@ function render(level, assets, game) {
                 sprite.width = sprite.height = size
                 sprite.x = x * size + size / 2
                 sprite.y = appHeight - ((config.worldBottom + 1 - y) * size + size / 2)
+                */
 
             }
         })
@@ -44,37 +52,38 @@ function render(level, assets, game) {
 
     console.log(assets)
     const engine = new collisionEngine(PIXI)
-    let testSprite = new collidableSprite(assets.baseplate, engine, false)
-    engine.addUpdatingSprite(testSprite)
 
-
-
-    console.log(engine)
-
-
-
-    app.stage.addChild(testSprite)
     let lvl = new level(418)
     let game = new PIXI.Container
     app.stage.addChild(game)
     game.scale.x = game.scale.y = 1
+    renderInit(lvl, assets, game, engine)
+
+
+    let sprite = new collidableSprite(assets.baseplate, engine, 100, 100, 100, 200, false)
+    console.log("Falling sprite", sprite)
+    engine.addUpdatingSprite(sprite)
+    sprite.anchor.set(0.5);
+    game.addChild(sprite)
+
     app.ticker.add((time) => {
+        /*
         game.destroy({
             children: true
         })
-        engine.update()
+        
+        
         game = new PIXI.Container
         app.stage.addChild(game)
         game.scale.x = game.scale.y = 1
-        render(lvl, assets, game)
+        */
+        engine.update()
+        //render(lvl, assets, game, engine)
     });
 
 })();
 
 class collisionEngine {
-
-    pixi
-    engine
     elements = []
 
     constructor(pixi) {
@@ -83,15 +92,20 @@ class collisionEngine {
         this.engine = Matter.Engine.create({
             gravity: {
                 y: 1
-            }
+            },
+            width: window.screen.width,
+            height: window.screen.height
         })
-        this.engine.world.gravity.scale = 0.001
+        //this.engineSizeX = this.engine.
+        this.engine.gravity.scale = 0.001
 
         Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
     addUpdatingSprite(collidableSprite) {
         Matter.Composite.add(this.engine.world, collidableSprite.rigidBody)
-        this.elements.push(collidableSprite)
+        if (!collidableSprite.rigidBody.isStatic) {
+            this.elements.push(collidableSprite)
+        }
     }
 
     update() {
