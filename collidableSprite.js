@@ -1,8 +1,7 @@
 export class collidableSprite extends PIXI.Sprite {
-    constructor(texture, game, width, height, x, y, isStatic) {
-        console.log(arguments)
+    constructor(texture, width, height, x, y, isStatic, noRotate) {
         super(texture)
-        this.game = game
+        this.noRotate = noRotate
         this.width = width
         this.height = height
         this.x = x
@@ -14,7 +13,6 @@ export class collidableSprite extends PIXI.Sprite {
         if (isStatic) {
             this.rigidBody.isStatic = true;
         }
-
         this.rigidBody.density = 0.01;
 
 
@@ -23,6 +21,9 @@ export class collidableSprite extends PIXI.Sprite {
     update() {
         this.position.set(this.rigidBody.position.x, this.rigidBody.position.y)
         this.rotation = this.rigidBody.angle
+        if (this.noRotate) {
+            Matter.Body.setAngularVelocity(this.rigidBody, 0)
+        }
     }
 
     resetPosition() {

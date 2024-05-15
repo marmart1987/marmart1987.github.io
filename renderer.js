@@ -3,6 +3,9 @@ import config from "./config.js";
 import {
     collidableSprite
 } from "./collidableSprite.js";
+import {
+    player
+} from "./player.js";
 globalThis.__PIXI_APP__ = app;
 window.onscroll = function () {
     window.scrollTo(0, 0);
@@ -16,8 +19,9 @@ function renderInit(level, assets, game, engine) {
         row.forEach((element, x) => {
             if (element.imagePath) {
                 const size = appWidth / config.maxBlocksInWindow
-                let sprite = new collidableSprite(assets[element.name], engine, size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
+                let sprite = new collidableSprite(assets[element.name], size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
                 console.log(sprite)
+
                 engine.addUpdatingSprite(sprite)
                 sprite.anchor.set(0.5);
                 game.addChild(sprite)
@@ -58,25 +62,24 @@ function renderInit(level, assets, game, engine) {
     app.stage.addChild(game)
     game.scale.x = game.scale.y = 1
     renderInit(lvl, assets, game, engine)
+    let x = new player(await PIXI.Assets.load("./Assets/Player.png"), 50, engine.engine)
+    engine.addUpdatingSprite(x)
+    x.anchor.set(0.5);
+    app.stage.addChild(x)
 
-
-    let sprite = new collidableSprite(assets.baseplate, engine, 100, 100, 100, 200, false)
+    let sprite = new collidableSprite(assets.baseplate, 100, 100, 100, 200, false)
     console.log("Falling sprite", sprite)
     engine.addUpdatingSprite(sprite)
     sprite.anchor.set(0.5);
-    game.addChild(sprite)
+    app.stage.addChild(sprite)
+
+
+
+    document.documentElement.style.overflow = 'hidden'; // firefox, chrome
+    document.body.scroll = "no"; // ie only
+
 
     app.ticker.add((time) => {
-        /*
-        game.destroy({
-            children: true
-        })
-        
-        
-        game = new PIXI.Container
-        app.stage.addChild(game)
-        game.scale.x = game.scale.y = 1
-        */
         engine.update()
         //render(lvl, assets, game, engine)
     });
@@ -98,7 +101,6 @@ class collisionEngine {
         })
         //this.engineSizeX = this.engine.
         this.engine.gravity.scale = 0.001
-
         Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
     addUpdatingSprite(collidableSprite) {
@@ -111,7 +113,6 @@ class collisionEngine {
     update() {
         Matter.Engine.update(this.engine, 1000 / 60)
         for (let el of this.elements) {
-            console.log(el.rigidBody.position)
             el.update()
         }
     }
@@ -119,7 +120,7 @@ class collisionEngine {
     // check who hits what 
     onCollision(event) {
         let collision = event.pairs[0]
-        console.log(event, collision)
+
     }
 
 
