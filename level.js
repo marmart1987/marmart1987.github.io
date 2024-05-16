@@ -30,6 +30,15 @@ class PRNG {
         return array[this.nextRange(0, array.length)];
     }
 }
+class arrayFuncs {
+    static forEach = (array, callback) => {
+        array.forEach(function (row, y) {
+            row.forEach(function (element, x) {
+                callback(element, x, y);
+            });
+        });
+    };
+}
 function twoDArray(size, initializer) {
     let array = [];
     if (size[1] > 0 && size[0] > 0) {
@@ -80,12 +89,12 @@ class map {
             console.error("Missing PRNG");
         }
         this.prng = prng;
-        this.placeableBlockTypes = map.#compilePlaceableBlockTypes();
+        this.placeableBlockTypes = map.compilePlaceableBlockTypes();
         //@ts-ignore
         this.map = map.combineChunks(new twoDArray([1, 103], new block("baseplate")), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk());
         return this.map;
     }
-    static #compilePlaceableBlockTypes() {
+    static compilePlaceableBlockTypes() {
         return Object.values(block.blockTypes).filter(function (element) {
             if (element.generatable) {
                 return true;

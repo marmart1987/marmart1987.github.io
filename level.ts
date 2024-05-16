@@ -31,8 +31,17 @@ class PRNG {
     }
 
 }
-
+class arrayFuncs {
+    static forEach = (array: Array<Array<any>>, callback: Function) => {
+        array.forEach(function (row, y) {
+            row.forEach(function (element, x) {
+                callback(element, x, y)
+            })
+        })
+    }
+}
 function twoDArray(size: [number, number], initializer: any) {
+
     let array: Array<any> = []
     if (size[1] > 0 && size[0] > 0) {
         let row: Array<any> = []
@@ -45,6 +54,7 @@ function twoDArray(size: [number, number], initializer: any) {
         return array
     }
     return []
+
 }
 
 
@@ -86,13 +96,13 @@ class map {
         }
 
         this.prng = prng
-        this.placeableBlockTypes = map.#compilePlaceableBlockTypes()
+        this.placeableBlockTypes = map.compilePlaceableBlockTypes()
         //@ts-ignore
         this.map = map.combineChunks(new twoDArray([1, 103], new block("baseplate")), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk())
 
         return this.map
     }
-    static #compilePlaceableBlockTypes() {
+    static compilePlaceableBlockTypes() {
         return Object.values(block.blockTypes).filter(function (element: blockType) {
             if (element.generatable) {
                 return true
@@ -125,10 +135,7 @@ function chunk() {
 
     let chunk = twoDArray([16, 100], new block("air"))
     chunk.push(new baseplate(), new baseplate(), new baseplate())
-
-
     return chunk
-
 }
 interface asset {
     name: string

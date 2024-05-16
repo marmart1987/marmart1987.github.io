@@ -11,6 +11,7 @@ window.onscroll = function () {
     window.scrollTo(0, 0);
 };
 
+
 function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
     let appWidth = app.renderer.width * config.appWidthMultiplier
@@ -25,17 +26,6 @@ function renderInit(level, assets, game, engine) {
                 engine.addUpdatingSprite(sprite)
                 sprite.anchor.set(0.5);
                 game.addChild(sprite)
-
-                /*
-                let sprite = new PIXI.Sprite(assets[element.name])
-                sprite.anchor.set(0.5);
-                game.addChild(sprite)
-                const size = appWidth / config.maxBlocksInWindow
-                sprite.width = sprite.height = size
-                sprite.x = x * size + size / 2
-                sprite.y = appHeight - ((config.worldBottom + 1 - y) * size + size / 2)
-                */
-
             }
         })
     }
@@ -56,12 +46,15 @@ function renderInit(level, assets, game, engine) {
 
     console.log(assets)
     const engine = new collisionEngine(PIXI)
+    globalThis.engine = engine
 
     let lvl = new level(418)
     let game = new PIXI.Container
     app.stage.addChild(game)
     game.scale.x = game.scale.y = 1
     renderInit(lvl, assets, game, engine)
+
+
     let x = new player(await PIXI.Assets.load("./Assets/Player.png"), 50, engine.engine)
     engine.addUpdatingSprite(x)
     x.anchor.set(0.5);
@@ -81,15 +74,17 @@ function renderInit(level, assets, game, engine) {
 
     app.ticker.add((time) => {
         engine.update()
-        //const size = appWidth / config.maxBlocksInWindow
 
-
+        //engine.scrollBy(Math.random() * 10 > 5)
     });
 
 })();
 
 class collisionEngine {
-    elements = []
+    all = []
+    entities = []
+    map = []
+
 
     constructor(pixi) {
         console.log("Collisons starting")
@@ -101,27 +96,35 @@ class collisionEngine {
             width: window.screen.width,
             height: window.screen.height
         })
+
         this.engine.gravity.scale = 0.001
-        Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
+        // Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
+
+    scrollBy(amount) {
+        this.all.forEach(function (element) {
+            Matter.Body.setPosition(element.rigidBody, {
+                x: element.rigidBody.position.x - amount,
+                y: element.rigidBody.position.y
+            })
+        })
+    }
+
     addUpdatingSprite(collidableSprite) {
         Matter.Composite.add(this.engine.world, collidableSprite.rigidBody)
+        this.all.push(collidableSprite)
         if (!collidableSprite.rigidBody.isStatic) {
-            this.elements.push(collidableSprite)
+            this.entities.push(collidableSprite)
+        } else {
+            this.map.push(collidableSprite)
         }
     }
 
     update() {
         Matter.Engine.update(this.engine, 1000 / 60)
-        for (let el of this.elements) {
+        for (let el of this.all) {
             el.update()
         }
-    }
-
-    // check who hits what 
-    onCollision(event) {
-        let collision = event.pairs[0]
-
     }
 
 

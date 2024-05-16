@@ -20,6 +20,7 @@ export class collidableSprite extends PIXI.Sprite {
 
     update() {
         this.position.set(this.rigidBody.position.x, this.rigidBody.position.y)
+
         this.rotation = this.rigidBody.angle
         if (this.noRotate) {
             Matter.Body.setAngularVelocity(this.rigidBody, 0)

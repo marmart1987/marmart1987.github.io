@@ -14,9 +14,12 @@ function isBottomColliding(playerObject, engine) {
             if (!collisionInfo) {
                 continue
             }
-            if (collisionInfo.collided && playerObject.position.y < object.position.y) {
+            console.log(playerObject.bounds.min.y, object.bounds.max.y, object.position.y)
+            if (collisionInfo.collided && playerObject.bounds.max.y < object.bounds.max.y) {
+                console.log(object)
                 return true; // Player is standing on this object
             }
+
         }
     }
     // No collision detected
