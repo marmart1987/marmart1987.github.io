@@ -55,10 +55,11 @@ function renderInit(level, assets, game, engine) {
     renderInit(lvl, assets, game, engine)
 
 
-    let x = new player(await PIXI.Assets.load("./Assets/Player.png"), 50, engine.engine)
-    engine.addUpdatingSprite(x)
-    x.anchor.set(0.5);
-    app.stage.addChild(x)
+    let Player = new player(await PIXI.Assets.load("./Assets/Player.png"), 50, engine.engine)
+    engine.addUpdatingSprite(Player)
+    engine.player = Player
+    Player.anchor.set(0.5);
+    app.stage.addChild(Player)
 
     let sprite = new collidableSprite(assets.baseplate, 100, 100, 100, 200, false)
     console.log("Falling sprite", sprite)
@@ -73,9 +74,7 @@ function renderInit(level, assets, game, engine) {
 
 
     app.ticker.add((time) => {
-        engine.update()
-
-        //engine.scrollBy(Math.random() * 10 > 5)
+        engine.update(time.deltaMS)
     });
 
 })();
@@ -84,6 +83,7 @@ class collisionEngine {
     all = []
     entities = []
     map = []
+    player = null
 
 
     constructor(pixi) {
@@ -98,7 +98,6 @@ class collisionEngine {
         })
 
         this.engine.gravity.scale = 0.001
-        // Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
 
     scrollBy(amount) {
@@ -120,11 +119,15 @@ class collisionEngine {
         }
     }
 
-    update() {
-        Matter.Engine.update(this.engine, 1000 / 60)
+    update(elapsed) {
+        Matter.Engine.update(this.engine, elapsed)
         for (let el of this.all) {
             el.update()
         }
+        if (this.player) {
+
+        }
+
     }
 
 
