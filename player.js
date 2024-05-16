@@ -46,7 +46,7 @@ export class player extends collidableSprite {
 
         const limitMaxSpeed = () => {
             let maxSpeedX = 4;
-            let maxSpeedY = 12;
+            let maxSpeedY = 13;
             if (this.rigidBody.velocity.x > maxSpeedX) {
                 Matter.Body.setVelocity(this.rigidBody, {
                     x: maxSpeedX,
@@ -94,7 +94,7 @@ export class player extends collidableSprite {
                 if (isBottomColliding(this.rigidBody, this.engine)) {
                     Matter.Body.setVelocity(this.rigidBody, {
                         x: velocity.x,
-                        y: velocity.y - 12
+                        y: velocity.y - 13
                     })
                     console.log("jump")
                 }

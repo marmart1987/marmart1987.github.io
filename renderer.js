@@ -81,7 +81,9 @@ function renderInit(level, assets, game, engine) {
 
     app.ticker.add((time) => {
         engine.update()
-        //render(lvl, assets, game, engine)
+        //const size = appWidth / config.maxBlocksInWindow
+
+
     });
 
 })();
@@ -99,7 +101,6 @@ class collisionEngine {
             width: window.screen.width,
             height: window.screen.height
         })
-        //this.engineSizeX = this.engine.
         this.engine.gravity.scale = 0.001
         Matter.Events.on(this.engine, 'collisionStart', (event) => this.onCollision(event))
     }
@@ -133,7 +134,6 @@ class collisionEngine {
         Matter.Composite.remove(this.engine.world, element.rigidBody) // stop physics simulation
         this.pixi.stage.removeChild(element) // stop drawing on the canvas
         this.elements = this.elements.filter((el) => el != element) // stop updating
-        // console.log(`Removed id ${element.id}. Elements left: ${this.elements.length}`)
     }
 
 }
