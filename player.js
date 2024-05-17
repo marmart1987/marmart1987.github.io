@@ -29,7 +29,7 @@ function isBottomColliding(playerObject, engine) {
 
 export class player extends collidableSprite {
     constructor(playerTexture, size, engine) {
-        super(playerTexture, size, size * 2, 100, 100, false, true)
+        super(playerTexture, size, size * 2, 200, 100, false, true)
         this.engine = engine
         Matter.Body.setInertia(this.rigidBody, 1.5)
         window.addEventListener('keydown', (event) => this.keydownHandler(event));

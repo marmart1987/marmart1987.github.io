@@ -16,14 +16,15 @@ function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
     let appWidth = app.renderer.width * config.appWidthMultiplier
     Matter.Composite.add(engine.engine.world,
-        Matter.Bodies.rectangle(0, 0, 50, 50000, {
+        Matter.Bodies.rectangle(0, 0, appWidth * 0.02, 50000, {
             isStatic: true
         }),
     )
     Matter.Composite.add(engine.engine.world,
-        Matter.Bodies.rectangle(appWidth, 0, 50, 50000, {
+        Matter.Bodies.rectangle(appWidth, 0, appWidth * 0.02, 50000, {
             isStatic: true
         }),
+
     )
 
 
@@ -52,11 +53,11 @@ function renderInit(level, assets, game, engine) {
     PIXI.Assets.init({
         manifest: level.compileAssets(Object.values(block.blockTypes))
     })
+    let startLoadingAssetsTime = Date.now()
     const assets = await PIXI.Assets.loadBundle('init');
-
-    console.log(assets)
+    console.debug("Game assets loaded in", Date.now() - startLoadingAssetsTime, "MS")
     const engine = new collisionEngine(PIXI)
-    globalThis.engine = engine
+
 
     let lvl = new level(418)
     let game = new PIXI.Container
@@ -86,10 +87,11 @@ class collisionEngine {
     entities = []
     map = []
     player = null
+    page = 0
 
 
     constructor(pixi) {
-        console.log("Collisons starting")
+        console.debug("Engine starting")
         this.pixi = pixi
         this.engine = Matter.Engine.create({
             gravity: {
@@ -136,16 +138,26 @@ class collisionEngine {
         }
         if (this.player) {
             let player = this.player
-            if (player.rigidBody.position.x > 0.9 * app.renderer.width) {
-                console.log("scroll")
+            if (player.rigidBody.position.x >= 0.95 * app.renderer.width * config.appWidthMultiplier) {
                 this.scrollBy(0.4 * app.renderer.width)
+                this.page++
+                console.log("scroll", this.page)
                 Matter.Body.setPosition(player.rigidBody, {
                     x: app.renderer.width * 0.4,
                     y: player.rigidBody.position.y
                 })
             }
-            if (player.rigidBody.position.y > app.renderer.height) {
-                // this.player = null
+            if (player.rigidBody.position.x < 0.1 * app.renderer.width && this.page > 0) {
+                this.scrollBy(-0.4 * app.renderer.width)
+                this.page--
+                console.log("scroll left", this.page)
+                Matter.Body.setPosition(player.rigidBody, {
+                    x: app.renderer.width * 0.9,
+                    y: player.rigidBody.position.y
+                })
+            }
+            if (player.rigidBody.position.y > app.renderer.height || player.rigidBody.position.x < 0 || player.rigidBody.position.y > 100000) {
+                this.player = null
                 console.log("Player fell out of the world")
             }
             player.update()

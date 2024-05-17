@@ -223,7 +223,6 @@ class level {
             }
             manifest.bundles.push()
         })
-        console.log(createdBundles)
         return manifest
 
 
