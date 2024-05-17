@@ -34,6 +34,7 @@ function renderInit(level, assets, game, engine) {
         row.forEach((element, x) => {
             if (element.imagePath) {
                 const size = appWidth / config.maxBlocksInWindow
+                console.log(size)
                 let sprite = new collidableSprite(assets[element.name], size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
                 engine.addUpdatingSprite(sprite)
                 sprite.anchor.set(0.5);
@@ -131,9 +132,24 @@ class collisionEngine {
 
         }
     }
+    resize() {
+        const size = (app.renderer.width * config.appWidthMultiplier) / config.maxBlocksInWindow
+        console.log(size)
+
+        for (let el of this.all) {
+            let x = Math.ceil(el.x / size)
+            Matter.Body.set(el, {
+                width: size,
+                height: size,
+                x: x * size + size / 2,
+                //y: appHeight - ((config.worldBottom + 1 - y) * size + size / 2)
+            })
+        }
+    }
 
     update(elapsed) {
         Matter.Engine.update(this.engine, elapsed)
+        this.resize()
         for (let el of this.all) {
             el.update()
         }
