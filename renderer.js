@@ -136,15 +136,16 @@ class collisionEngine {
         }
         if (this.player) {
             let player = this.player
-            // if (player.rigidBody.position.x > 0.95 * app.renderer.width) {
-            // this.scrollBy(0.4 * app.renderer.width)
-            // Matter.Body.setPosition(player.rigidBody, {
-            // x: app.renderer.width * 0.4,
-            // y: player.rigidBody.position.y
-            // })
-            // }
+            if (player.rigidBody.position.x > 0.9 * app.renderer.width) {
+                console.log("scroll")
+                this.scrollBy(0.4 * app.renderer.width)
+                Matter.Body.setPosition(player.rigidBody, {
+                    x: app.renderer.width * 0.4,
+                    y: player.rigidBody.position.y
+                })
+            }
             if (player.rigidBody.position.y > app.renderer.height) {
-                this.player = null
+                // this.player = null
                 console.log("Player fell out of the world")
             }
             player.update()
