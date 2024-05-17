@@ -98,7 +98,7 @@ class map {
         this.prng = prng
         this.placeableBlockTypes = map.compilePlaceableBlockTypes()
         //@ts-ignore
-        this.map = map.combineChunks(new twoDArray([1, 103], new block("baseplate")), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk())
+        this.map = map.combineChunks(chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk(), chunk())
 
         return this.map
     }

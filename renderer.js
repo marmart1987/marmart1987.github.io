@@ -15,14 +15,24 @@ window.onscroll = function () {
 function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
     let appWidth = app.renderer.width * config.appWidthMultiplier
+    Matter.Composite.add(engine.engine.world,
+        Matter.Bodies.rectangle(0, 0, 50, 50000, {
+            isStatic: true
+        }),
+    )
+    Matter.Composite.add(engine.engine.world,
+        Matter.Bodies.rectangle(appWidth, 0, 50, 50000, {
+            isStatic: true
+        }),
+    )
+
+
     for (let y = level.map.length - 1; y > -1; y--) {
         let row = level.map[y]
         row.forEach((element, x) => {
             if (element.imagePath) {
                 const size = appWidth / config.maxBlocksInWindow
                 let sprite = new collidableSprite(assets[element.name], size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
-                console.log(sprite)
-
                 engine.addUpdatingSprite(sprite)
                 sprite.anchor.set(0.5);
                 game.addChild(sprite)
@@ -60,14 +70,6 @@ function renderInit(level, assets, game, engine) {
     engine.player = Player
     Player.anchor.set(0.5);
     app.stage.addChild(Player)
-
-    let sprite = new collidableSprite(assets.baseplate, 100, 100, 100, 200, false)
-    console.log("Falling sprite", sprite)
-    engine.addUpdatingSprite(sprite)
-    sprite.anchor.set(0.5);
-    app.stage.addChild(sprite)
-
-
 
     document.documentElement.style.overflow = 'hidden'; // firefox, chrome
     document.body.scroll = "no"; // ie only
@@ -134,13 +136,13 @@ class collisionEngine {
         }
         if (this.player) {
             let player = this.player
-            if (player.rigidBody.position.x > 0.95 * app.renderer.width) {
-                this.scrollBy(0.4 * app.renderer.width)
-                Matter.Body.setPosition(player.rigidBody, {
-                    x: app.renderer.width * 0.4,
-                    y: player.rigidBody.position.y
-                })
-            }
+            // if (player.rigidBody.position.x > 0.95 * app.renderer.width) {
+            // this.scrollBy(0.4 * app.renderer.width)
+            // Matter.Body.setPosition(player.rigidBody, {
+            // x: app.renderer.width * 0.4,
+            // y: player.rigidBody.position.y
+            // })
+            // }
             if (player.rigidBody.position.y > app.renderer.height) {
                 this.player = null
                 console.log("Player fell out of the world")
