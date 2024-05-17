@@ -12,6 +12,7 @@ window.onscroll = function () {
 };
 
 
+
 function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
     let appWidth = app.renderer.width * config.appWidthMultiplier
@@ -53,9 +54,9 @@ function renderInit(level, assets, game, engine) {
     PIXI.Assets.init({
         manifest: level.compileAssets(Object.values(block.blockTypes))
     })
-    let startLoadingAssetsTime = Date.now()
+    console.time("Game assets loaded in")
     const assets = await PIXI.Assets.loadBundle('init');
-    console.debug("Game assets loaded in", Date.now() - startLoadingAssetsTime, "MS")
+    console.timeEnd("Game assets loaded in")
     const engine = new collisionEngine(PIXI)
 
 
