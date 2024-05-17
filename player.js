@@ -15,10 +15,8 @@ function isBottomColliding(playerObject, engine) {
                 continue
             }
 
-            console.log(playerObject.position.x, object.bounds.min.x, object.bounds.max.x)
             if (collisionInfo.collided && playerObject.bounds.max.y < object.bounds.max.y) {
                 if (playerObject.position.x > object.bounds.min.x && playerObject.position.x < object.bounds.max.x) {
-                    console.log(playerObject.x, object.bounds.min.x, object.bounds.max.x)
                     return true; // Player is standing on this object
                 }
             }
@@ -41,14 +39,7 @@ export class player extends collidableSprite {
             this.rigidBody.friction = 0.7,
             this.rigidBody.frictionStatic = 0,
             this.rigidBody.frictionAir = 0.02,
-            this.rigidBody.restitution = 0.5,
-            this.update = function () {
-                this.position.set(this.rigidBody.position.x, this.rigidBody.position.y)
-                this.rotation = this.rigidBody.angle
-                if (this.noRotate) {
-                    Matter.Body.setAngularVelocity(this.rigidBody, 0)
-                }
-            }
+            this.rigidBody.restitution = 0.5
 
         const limitMaxSpeed = () => {
             let maxSpeedX = 4;
@@ -102,18 +93,13 @@ export class player extends collidableSprite {
                         x: velocity.x,
                         y: velocity.y - 13
                     })
-                    console.log("jump")
                 }
                 break
             case "left":
-
                 this.isMovingLeft = true
-                // console.log("left", [this.isMovingLeft, this.isMovingRight])
                 break
             case "right":
-
                 this.isMovingRight = true
-                // console.log("right", [this.isMovingLeft, this.isMovingRight])
                 break
         }
         if (this.isMovingLeft || this.isMovingRight) {

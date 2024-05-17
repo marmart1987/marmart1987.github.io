@@ -111,11 +111,19 @@ class collisionEngine {
 
     addUpdatingSprite(collidableSprite) {
         Matter.Composite.add(this.engine.world, collidableSprite.rigidBody)
-        this.all.push(collidableSprite)
+
         if (!collidableSprite.rigidBody.isStatic) {
-            this.entities.push(collidableSprite)
+            if (collidableSprite.keyMap) {
+                this.player = collidableSprite
+            } else {
+                this.entities.push(collidableSprite)
+                this.all.push(collidableSprite)
+            }
         } else {
+
             this.map.push(collidableSprite)
+            this.all.push(collidableSprite)
+
         }
     }
 
@@ -125,7 +133,19 @@ class collisionEngine {
             el.update()
         }
         if (this.player) {
-
+            let player = this.player
+            if (player.rigidBody.position.x > 0.95 * app.renderer.width) {
+                this.scrollBy(0.4 * app.renderer.width)
+                Matter.Body.setPosition(player.rigidBody, {
+                    x: app.renderer.width * 0.4,
+                    y: player.rigidBody.position.y
+                })
+            }
+            if (player.rigidBody.position.y > app.renderer.height) {
+                this.player = null
+                console.log("Player fell out of the world")
+            }
+            player.update()
         }
 
     }
