@@ -11,7 +11,12 @@ window.onscroll = function () {
     window.scrollTo(0, 0);
 };
 
-
+if ('ontouchstart' in window) {
+    window.isTouchCompatible = true
+    console.log("touchscreen")
+} else {
+    console.log("not touchscreen")
+}
 
 function renderInit(level, assets, game, engine) {
     let appHeight = app.renderer.height * config.appHeightMultiplier
@@ -25,8 +30,9 @@ function renderInit(level, assets, game, engine) {
         Matter.Bodies.rectangle(appWidth, 0, appWidth * 0.02, 50000, {
             isStatic: true
         }),
-
     )
+
+
 
 
     for (let y = level.map.length - 1; y > -1; y--) {
@@ -68,7 +74,8 @@ function renderInit(level, assets, game, engine) {
     renderInit(lvl, assets, game, engine)
 
 
-    let Player = new player(await PIXI.Assets.load("./Assets/Player.png"), 50, engine.engine)
+    let Player = new player(await PIXI.Assets.load("./Assets/Player.png"),
+        app.renderer.width * config.appWidthMultiplier / config.maxBlocksInWindow, engine.engine)
     engine.addUpdatingSprite(Player)
     engine.player = Player
     Player.anchor.set(0.5);
@@ -104,6 +111,9 @@ class collisionEngine {
         })
 
         this.engine.gravity.scale = 0.001
+        window.addEventListener('resize', (event) => {
+            this.resize()
+        }, true);
     }
 
     scrollBy(amount) {
@@ -133,23 +143,25 @@ class collisionEngine {
         }
     }
     resize() {
+        const appHeight = (app.renderer.width * config.appWidthMultiplier)
         const size = (app.renderer.width * config.appWidthMultiplier) / config.maxBlocksInWindow
-        console.log(size)
+        //console.log(size)
 
         for (let el of this.all) {
             let x = Math.ceil(el.x / size)
+            let y = Math.ceil(el.y / size)
+            console.log(size, y, y * size + size / 2)
             Matter.Body.set(el, {
                 width: size,
                 height: size,
                 x: x * size + size / 2,
-                //y: appHeight - ((config.worldBottom + 1 - y) * size + size / 2)
+                y: (y * size * 0.8 + size * 0.8 / 2)
             })
         }
     }
 
     update(elapsed) {
         Matter.Engine.update(this.engine, elapsed)
-        this.resize()
         for (let el of this.all) {
             el.update()
         }
