@@ -3,10 +3,10 @@ const config = {
     appHeightMultiplier: 0.98,
     appWidthMultiplier: 0.98,
     worldBottom: 100,
-    maxXSpeed: 4,
-    maxYSpeed: 20,
-    jumpHeight: 20,
+    maxXSpeed: 2.5,
+    maxYSpeed: 10,
+    jumpHeight: 5.5,
     //xSpeedBreakingLimit: 100,
-    movementAcceleration: 0.005
+    movementAcceleration: 0.008
 }
 export default config

@@ -6,6 +6,9 @@ import {
 import {
     player
 } from "./player.js";
+import {
+    controlsManager
+} from "./controlsManager.js";
 globalThis.__PIXI_APP__ = app;
 window.onscroll = function () {
     window.scrollTo(0, 0);
@@ -167,6 +170,7 @@ class collisionEngine {
         }
         if (this.player) {
             let player = this.player
+            controlsManager(this.player, elapsed)
             if (player.rigidBody.position.x >= 0.95 * app.renderer.width * config.appWidthMultiplier) {
                 this.scrollBy(0.4 * app.renderer.width)
                 this.page++

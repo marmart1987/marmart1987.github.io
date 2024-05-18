@@ -36,22 +36,18 @@ export class player extends collidableSprite {
         window.addEventListener('keydown', (event) => this.keydownHandler(event));
         window.addEventListener('keyup', (event) => this.keyupHandler(event));
         this.lastControllerUpdate = Date.now()
-        this.rigidBody.density = 0.01,
-            this.rigidBody.friction = 0.5,
-            this.rigidBody.frictionStatic = 0.2,
-            this.rigidBody.frictionAir = 0.,
-            this.rigidBody.restitution = 0.6
-
-
-        //Matter.Events.on(engine, 'beforeUpdate', limitMaxSpeed);
-
+        this.rigidBody.density = 0.001,
+            this.rigidBody.friction = 0.3,
+            this.rigidBody.frictionStatic = 0.08,
+            this.rigidBody.frictionAir = 0.01,
+            this.rigidBody.restitution = 0.4
     }
     limitMaxSpeed = () => {
         let maxSpeedX = config.maxXSpeed;
         let maxSpeedY = config.maxYSpeed;
-        if (this.rigidBody.speed > maxSpeedX) {
-            Matter.Body.setSpeed(this.rigidBody, maxSpeedX)
-        }
+        //if (this.rigidBody.speed > maxSpeedX) {
+        //  Matter.Body.setSpeed(this.rigidBody, maxSpeedX)
+        //}
         if (this.rigidBody.velocity.x > maxSpeedX) {
             Matter.Body.setVelocity(this.rigidBody, {
                 x: maxSpeedX,
@@ -65,21 +61,23 @@ export class player extends collidableSprite {
                 y: this.rigidBody.velocity.y
             });
         }
+        /*
+                if (this.rigidBody.velocity.y > maxSpeedY) {
+                    Matter.Body.setVelocity(this.rigidBody, {
+                        x: this.rigidBody.velocity.x,
+                        y: maxSpeedY
+                    });
+                }
 
-        if (this.rigidBody.velocity.y > maxSpeedY) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: this.rigidBody.velocity.x,
-                y: maxSpeedY
-            });
-        }
-
-        if (this.rigidBody.velocity.y < -maxSpeedY) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: -this.rigidBody.velocity.x,
-                y: -maxSpeedY
-            });
-        }
+                if (this.rigidBody.velocity.y < -maxSpeedY) {
+                    Matter.Body.setVelocity(this.rigidBody, {
+                        x: -this.rigidBody.velocity.x,
+                        y: -maxSpeedY
+                    });
+                }
+                */
     }
+
 
     keyMap = {
         Space: 'jump',
@@ -94,7 +92,6 @@ export class player extends collidableSprite {
     }
     keydownHandler(event) {
         const key = this.keyMap[event.code]
-        console.log(key, event.code)
         const velocity = this.rigidBody.velocity
         switch (key) {
             case "jump":
@@ -118,28 +115,34 @@ export class player extends collidableSprite {
                 Matter.Body.setSpeed(this.rigidBody, this.rigidBody.speed + 20)
                 break
         }
-        if (this.isMovingLeft || this.isMovingRight) {
-            this.interval = setInterval((dt) => {
-                controlsManager(this, dt)
-                this.lastControllerUpdate = Date.now()
-            }, 10, Date.now() - this.lastControllerUpdate)
-        }
+
     }
+    /**
+     * Handles key up events
+     * @param {KeyboardEvent} event - The key up event
+     */
     keyupHandler(event) {
+        /**
+         * Get the key from the event
+         */
         const key = this.keyMap[event.code]
 
+        /**
+         * Stop moving the player and clear the interval
+         */
         switch (key) {
             case "left":
                 this.isMovingLeft = false
-                clearInterval(this.interval)
+                //clearInterval(this.interval)
                 break;
 
             case "right":
                 this.isMovingRight = false
-                clearInterval(this.interval)
+                //clearInterval(this.interval)
                 break
         }
 
 
     }
+
 }
