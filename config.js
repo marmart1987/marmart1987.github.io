@@ -6,7 +6,7 @@ const config = {
     maxXSpeed: 2.5,
     maxYSpeed: 10,
     jumpHeight: 5.5,
-    //xSpeedBreakingLimit: 100,
+
     movementAcceleration: 0.008
 }
 export default config

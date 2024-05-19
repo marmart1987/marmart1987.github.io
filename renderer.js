@@ -120,7 +120,7 @@ class collisionEngine {
     }
 
     scrollBy(amount) {
-        this.all.forEach(function (element) {
+        this.all.forEach((element) => {
             Matter.Body.setPosition(element.rigidBody, {
                 x: element.rigidBody.position.x - amount,
                 y: element.rigidBody.position.y
@@ -139,75 +139,77 @@ class collisionEngine {
                 this.all.push(collidableSprite)
             }
         } else {
-
             this.map.push(collidableSprite)
             this.all.push(collidableSprite)
-
         }
     }
     resize() {
-        const appHeight = (app.renderer.width * config.appWidthMultiplier)
+        console.log("Resizing engine")
         const size = (app.renderer.width * config.appWidthMultiplier) / config.maxBlocksInWindow
-        //console.log(size)
+        console.log("Size", size)
 
-        for (let el of this.all) {
-            let x = Math.ceil(el.x / size)
-            let y = Math.ceil(el.y / size)
-            console.log(size, y, y * size + size / 2)
+        this.all.forEach((el) => {
+            const x = Math.ceil(el.x / size)
+            const y = Math.ceil(el.y / size)
             Matter.Body.set(el, {
                 width: size,
                 height: size,
                 x: x * size + size / 2,
                 y: (y * size * 0.8 + size * 0.8 / 2)
             })
-        }
+        });
     }
 
     update(elapsed) {
+        const player = this.player
         Matter.Engine.update(this.engine, elapsed)
-        for (let el of this.all) {
-            el.update()
-        }
-        if (this.player) {
-            let player = this.player
-            controlsManager(this.player, elapsed)
-            if (player.rigidBody.position.x >= 0.95 * app.renderer.width * config.appWidthMultiplier) {
+
+        if (player) {
+            controlsManager(player, elapsed)
+
+            if (player.rigidBody.position.x > app.renderer.width * 0.95 * config.appWidthMultiplier) {
                 this.scrollBy(0.4 * app.renderer.width)
-                this.page++
-                console.log("scroll", this.page)
                 Matter.Body.setPosition(player.rigidBody, {
                     x: app.renderer.width * 0.4,
                     y: player.rigidBody.position.y
                 })
+                this.page++
+                console.log("scroll", this.page)
             }
-            if (player.rigidBody.position.x < 0.1 * app.renderer.width && this.page > 0) {
+
+            if (player.rigidBody.position.x < app.renderer.width * 0.1 && this.page > 0) {
                 this.scrollBy(-0.4 * app.renderer.width)
-                this.page--
-                console.log("scroll left", this.page)
                 Matter.Body.setPosition(player.rigidBody, {
                     x: app.renderer.width * 0.9,
                     y: player.rigidBody.position.y
                 })
+                this.page--
+                console.log("scroll", this.page)
             }
+            player.update()
             if (player.rigidBody.position.y > app.renderer.height || player.rigidBody.position.x < 0 || player.rigidBody.position.y > 100000) {
                 this.player = null
                 console.log("Player fell out of the world")
             }
-            player.update()
+
+            console.log(player.isMovingLeft, player.isMovingRight)
+        }
+
+        for (const el of this.entities) {
+            el.update()
         }
 
     }
 
 
     findSpriteWithRigidbody(rb) {
-        return this.elements.find((element) => element.rigidBody === rb)
+        return this.all.find((element) => element.rigidBody === rb)
     }
 
     removeElement(element) {
         element.beforeUnload()
         Matter.Composite.remove(this.engine.world, element.rigidBody) // stop physics simulation
         this.pixi.stage.removeChild(element) // stop drawing on the canvas
-        this.elements = this.elements.filter((el) => el != element) // stop updating
+        this.entities = this.entities.filter((el) => el != element) // stop updating
     }
-
 }
