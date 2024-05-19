@@ -5,8 +5,7 @@ const config = {
     worldBottom: 100,
     maxXSpeed: 2.5,
     maxYSpeed: 10,
-    jumpHeight: 5.5,
-
+    jumpHeight: 15.5,
     movementAcceleration: 0.008
 }
 export default config

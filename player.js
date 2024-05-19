@@ -73,44 +73,44 @@ export class player extends collidableSprite {
          * The physical properties of the player. 
          */
         this.rigidBody.density = 0.001,
-            this.rigidBody.friction = 0.3,
+            this.rigidBody.friction = 0.01,
             this.rigidBody.frictionStatic = 0.0,
             this.rigidBody.frictionAir = 0.01,
-            this.rigidBody.restitution = 0.4
+            this.rigidBody.restitution = 0.1,
+            this.rigidBody.slop = 0.01
     }
-    limitMaxSpeed = () => {
-        let maxSpeedX = config.maxXSpeed
-        let maxSpeedY = config.maxYSpeed
 
-        if (this.rigidBody.velocity.x > maxSpeedX) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: maxSpeedX,
-                y: this.rigidBody.velocity.y
-            });
-        }
+    /**
+     * Limits the player's velocity to the maximum speed values set in the config.
+     */
+    limitMaxSpeed() {
+        const {
+            velocity: {
+                x,
+                y
+            }
+        } = this.rigidBody;
+        const {
+            maxXSpeed,
+            maxYSpeed
+        } = config;
 
-        if (this.rigidBody.velocity.x < -maxSpeedX) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: -maxSpeedX,
-                y: this.rigidBody.velocity.y
-            });
-        }
+        // If the player's x velocity is greater than the maximum x speed, set it to the maximum x speed.
+        // If the player's x velocity is less than the negative maximum x speed, set it to the negative maximum x speed.
+        // Otherwise, leave the x velocity unchanged.
+        const newX = x > maxXSpeed ? maxXSpeed : (x < -maxXSpeed ? -maxXSpeed : x);
 
-        if (this.rigidBody.velocity.y > maxSpeedY) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: this.rigidBody.velocity.x,
-                y: maxSpeedY
-            });
-        }
+        // Repeat the same process for the y velocity.
+        const newY = y > maxYSpeed ? maxYSpeed : (y < -maxYSpeed ? -maxYSpeed : y);
 
-        if (this.rigidBody.velocity.y < -maxSpeedY) {
-            Matter.Body.setVelocity(this.rigidBody, {
-                x: -this.rigidBody.velocity.x,
-                y: -maxSpeedY
-            });
-        }
-
+        // Set the player's velocity to the new, limited values.
+        Matter.Body.setVelocity(this.rigidBody, {
+            x: newX,
+            y: newY
+        });
     }
+
+
 
 
     keyMap = {
@@ -123,6 +123,15 @@ export class player extends collidableSprite {
         ArrowRight: 'right',
         ShiftLeft: "dash",
         ShiftRight: "dash"
+    }
+    jump() {
+        const velocity = this.rigidBody.velocity
+        if (isBottomColliding(this.rigidBody, this.engine)) {
+            Matter.Body.setVelocity(this.rigidBody, {
+                x: velocity.x,
+                y: velocity.y - config.jumpHeight
+            })
+        }
     }
     /**
      * Handles key down events
@@ -147,7 +156,7 @@ export class player extends collidableSprite {
                 this.isMovingRight = true
                 break
             case "dash":
-                Matter.Body.setSpeed(this.rigidBody, Math.min(this.rigidBody.speed + 20, config.maxSpeed))
+                Matter.Body.setSpeed(this.rigidBody, this.rigidBody.speed + 20)
                 break
         }
 
