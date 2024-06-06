@@ -1,7 +1,7 @@
 import {
     collidableSprite
 } from "./collidableSprite.js";
-import config from "./config.js";
+import config from "../config.js";
 
 /**
  * Checks if the player is colliding with the bottom of any object in the physics world.
@@ -72,18 +72,18 @@ export class player extends collidableSprite {
         /**
          * The physical properties of the player. 
          */
-        this.rigidBody.density = 0.001,
-            this.rigidBody.friction = 0.01,
-            this.rigidBody.frictionStatic = 0.0,
-            this.rigidBody.frictionAir = 0.01,
-            this.rigidBody.restitution = 0.1,
-            this.rigidBody.slop = 0.01
+        this.rigidBody.density = 1000,
+            this.rigidBody.friction = 0.4,
+            this.rigidBody.frictionStatic = true,
+            this.rigidBody.frictionAir = 0.05,
+            this.rigidBody.restitution = 0.2,
+            this.rigidBody.slop = 0.0
     }
 
     /**
      * Limits the player's velocity to the maximum speed values set in the config.
      */
-    limitMaxSpeed() {
+    /* limitMaxSpeed() {
         const {
             velocity: {
                 x,
@@ -108,7 +108,7 @@ export class player extends collidableSprite {
             x: newX,
             y: newY
         });
-    }
+    }*/
 
 
 
@@ -137,17 +137,13 @@ export class player extends collidableSprite {
      * Handles key down events
      * @param {KeyboardEvent} event - The key down event
      */
+    
     keydownHandler(event) {
         const key = this.keyMap[event.code]
         const velocity = this.rigidBody.velocity
         switch (key) {
             case "jump":
-                if (isBottomColliding(this.rigidBody, this.engine)) {
-                    Matter.Body.setVelocity(this.rigidBody, {
-                        x: velocity.x,
-                        y: velocity.y - config.jumpHeight
-                    })
-                }
+                this.jump()
                 break
             case "left":
                 this.isMovingLeft = true
@@ -155,33 +151,34 @@ export class player extends collidableSprite {
             case "right":
                 this.isMovingRight = true
                 break
+            
             case "dash":
                 Matter.Body.setSpeed(this.rigidBody, this.rigidBody.speed + 20)
                 break
+                
         }
 
     }
+    
 
     /**
      * Handles key up events
      * @param {KeyboardEvent} event - The key up event
      */
-    keyupHandler(event) {
-        /**
-         * Get the key from the event
-         */
-        const key = this.keyMap[event.code]
-        switch (key) {
-            case "left":
-                this.isMovingLeft = false
-                break;
+keyupHandler(event) {
+    /**
+     * Get the key from the event
+     */
+    const key = this.keyMap[event.code]
+    switch (key) {
+        case "left":
+            this.isMovingLeft = false
+            break;
 
-            case "right":
-                this.isMovingRight = false
-                break
-        }
-
-
+        case "right":
+            this.isMovingRight = false
+            break
     }
-
 }
+}
+

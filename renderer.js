@@ -1,48 +1,30 @@
 let app = new PIXI.Application();
 import config from "./config.js";
-import {
-    collidableSprite
-} from "./collidableSprite.js";
-import {
-    player
-} from "./player.js";
-import {
-    controlsManager
-} from "./controlsManager.js";
+import {motionEngine} from "./motionEngine.js"
+import { level, map, block } from "./level.js";
 globalThis.__PIXI_APP__ = app;
 
 window.onscroll = function () {
     window.scrollTo(0, 0);
 };
+document.documentElement.style.overflow = 'hidden'; // firefox, chrome
+document.body.scroll = "no"; // ie only
 
-function renderInit(level, assets, game, engine) {
-    let appHeight = app.renderer.height * config.appHeightMultiplier
+function renderInit(level, assets, engine) {
     let appWidth = app.renderer.width * config.appWidthMultiplier
-    Matter.Composite.add(engine.engine.world,
-        Matter.Bodies.rectangle(0, 0, appWidth * 0.02, 50000, {
-            isStatic: true
-        }),
-    )
-    Matter.Composite.add(engine.engine.world,
-        Matter.Bodies.rectangle(appWidth, 0, appWidth * 0.02, 50000, {
-            isStatic: true
-        }),
-    )
-
-
-
-
+    let appHeight = app.renderer.height * config.appHeightMultiplier
     for (let y = level.map.length - 1; y > -1; y--) {
         let row = level.map[y]
         row.forEach((element, x) => {
             if (element.imagePath) {
-                if (Math.random() > 0.2) {
-                    const size = appWidth / config.maxBlocksInWindow
-                    console.log(size)
-                    let sprite = new collidableSprite(assets[element.name], size, size, x * size + size / 2, appHeight - ((config.worldBottom + 1 - y) * size + size / 2), true)
-                    engine.addUpdatingSprite(sprite)
-                    sprite.anchor.set(0.5);
-                    game.addChild(sprite)
+                if (Math.random() > 0.5) {
+
+                    const sprite = new PIXI.Sprite(assets[element.name])                    
+                    const collisionBox = engine.createCollisionBox(appWidth,appHeight,[{ x: 0, y: 0 }, { x: 8, y: 0 }, { x: 8, y: 8 }, { x: 0, y: 8 }], { x: x, y: y }, { size: { x: 1, y: 1 }, static: true });
+                    engine.addPIXI(collisionBox, sprite);   
+                    if(Math.random() > 0.9){
+                        console.log(x,y)
+                    }
                 }
             }
         })
@@ -60,37 +42,46 @@ function renderInit(level, assets, game, engine) {
     PIXI.Assets.init({
         manifest: level.compileAssets(Object.values(block.blockTypes))
     })
+   
+
+    const lvl = new level()
+    
+    
     console.time("Game assets loaded in")
     const assets = await PIXI.Assets.loadBundle('init');
     console.timeEnd("Game assets loaded in")
-    const engine = new collisionEngine(PIXI)
-    globalThis.engine = engine
-
-    let lvl = new level(418)
     let game = new PIXI.Container
     app.stage.addChild(game)
     game.scale.x = game.scale.y = 1
-    renderInit(lvl, assets, game, engine)
+    const engine = new motionEngine(0.8, game)    
 
+    renderInit(lvl, assets, engine)
+    const collisionBox = engine.createCollisionBox(app.renderer.height * config.appHeightMultiplier, app.renderer.width * config.appWidthMultiplier, [{ x: 0, y: 0 }, { x: 8, y: 0 }, { x: 8, y: 8 }, { x: 0, y: 8 }], { x: 10, y: 80 }, { size: { x: 1, y: 1 }, static: false, velocity: {x:10, y:0} });
+    engine.addPIXI(collisionBox, new PIXI.Graphics(), true, "red"); 
+    console.log(collisionBox.pixi.position, collisionBox.position)
 
-    let Player = new player(await PIXI.Assets.load("./Assets/Player.png"),
-        app.renderer.width * config.appWidthMultiplier / config.maxBlocksInWindow, engine.engine)
-    engine.addUpdatingSprite(Player)
-    engine.player = Player
-    Player.anchor.set(0.5);
-    app.stage.addChild(Player)
-
-    document.documentElement.style.overflow = 'hidden'; // firefox, chrome
-    document.body.scroll = "no"; // ie only
+    for (let j = 0; j < engine.elements.length; j++) {
+        const otherElement = engine.elements[j]
+        if (collisionBox.uid !== otherElement.uid) {
+            if (collisionBox.polygon && otherElement.polygon) {
+                console.log("Next polygon!")
+                                if (motionEngine.arePolygonsColliding(collisionBox.polygon, otherElement.polygon)) {
+                                    console.log("Collision detected between elements", collisionBox.uid, "and", otherElement.uid)
+                                }
+             }
+        }
+    }
 
 
     app.ticker.add((time) => {
-        engine.update(time.deltaMS)
+        engine.update(app.renderer.width,app.renderer.height)
     });
+})();
+    /*
     let touchLeft = false
     let touchRight = false
 
-    /*
+    
     addEventListener("touchstart", (event) => {
         for (let i = 0; i < event.changedTouches.length; i++) {
             let touch = event.changedTouches[i]
@@ -128,7 +119,7 @@ function renderInit(level, assets, game, engine) {
 
     });
 
-*/
+
 })();
 
 class collisionEngine {
@@ -200,8 +191,9 @@ class collisionEngine {
      * 
      * The sprite is then set to have the size of a block and its new position
      * in pixels.
-     */
+     
     resize() {
+
         /*
         console.log("Resizing engine")
         const size = (app.renderer.width * config.appWidthMultiplier) / config.maxBlocksInWindow
@@ -226,19 +218,18 @@ class collisionEngine {
                 y: yPixels
             })
         });
-        */
+        
     }
 
 
     update(elapsed) {
-
-        Matter.Engine.update(this.engine, elapsed)
-        this.all.forEach((el) => el.update())
+ 
 
         const player = this.player
         if (player) {
+            player.update()
             controlsManager(player, elapsed)
-
+/*
             if (player.rigidBody.position.x > app.renderer.width * 0.95 * config.appWidthMultiplier) {
                 this.scrollBy(0.4 * app.renderer.width)
                 Matter.Body.setPosition(player.rigidBody, {
@@ -259,13 +250,15 @@ class collisionEngine {
                 console.log("scroll", this.page)
             }
 
-            player.update()
+            
             if (player.rigidBody.position.y > app.renderer.height || player.rigidBody.position.x < 0 || player.rigidBody.position.y > 100000) {
                 this.player = null
                 console.log("Player fell out of the world")
             }
         }
-
+       
+        Matter.Engine.update(this.engine, elapsed)
+        this.all.forEach((el) => el.update())
 
     }
 
@@ -278,6 +271,7 @@ class collisionEngine {
         element.beforeUnload()
         Matter.Composite.remove(this.engine.world, element.rigidBody) // stop physics simulation
         this.pixi.stage.removeChild(element) // stop drawing on the canvas
-        this.entities = this.entities.filter((el) => el != element) // stop updating
+        
     }
 }
+*/

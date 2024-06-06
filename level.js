@@ -1,4 +1,3 @@
-"use strict";
 class PRNG {
     m;
     a;
@@ -200,3 +199,4 @@ class level {
         return manifest;
     }
 }
+export { level, map, block };

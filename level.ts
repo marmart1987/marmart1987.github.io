@@ -235,3 +235,5 @@ class level {
 
 
 }
+
+export { level, map, block }

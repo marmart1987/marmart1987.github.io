@@ -1,4 +1,4 @@
-import config from "./config.js";
+import config from "../config.js";
 
 export function controlsManager(player, dt) {
     if (!player) return;
@@ -11,7 +11,7 @@ export function controlsManager(player, dt) {
         // console.log("right", vel.x)
         vel.x += acceleration * dt;
     }
-    player.limitMaxSpeed()
-    //console.log(player.rigidBody.speed, player.rigidBody.position.x)
+    //player.limitMaxSpeed()
+    console.debug(vel)
     Matter.Body.setVelocity(player.rigidBody, vel);
 }
